@@ -9,9 +9,10 @@ const app = express();
 // setting up the middleware
 app.use('/graphql', graphqlHTTP({
     // es5 schema: schema (es6 just one for both names are the same)
-    schema
+    schema,
+    graphiql: true
 }));
 
 app.listen(4000, () => {
-    console.log('listenning to port 4000');
+    console.log('listening to port 4000');
 });
