@@ -1,8 +1,8 @@
 const graphql = require('graphql');
 
-// need to describe our object types here
+// need to describe our object types, as well as relationships between types.
 
-const {GraphQLObjectType, GraphQLString} = graphql;
+const {GraphQLObjectType, GraphQLString, GraphQLSchema} = graphql;
 
 const BookType = new GraphQLObjectType({
     name: 'Book',
@@ -12,3 +12,20 @@ const BookType = new GraphQLObjectType({
         genre: {type: GraphQLString}
     })
 });
+
+const RouteQuery = new GraphQLObjectType({
+    name: 'RootQuery',
+    fields: {
+        book: {
+            type: BookType,
+            args: {id: {type: GraphQLString}},
+            resolve(parent, args){
+                // how we get data from db / other source
+            }
+        }
+    }
+});
+
+module.exports = new GraphQLSchema({
+    query: RouteQuery
+})
