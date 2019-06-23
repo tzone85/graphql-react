@@ -1,9 +1,14 @@
 const graphql = require('graphql');
-const _=require('lodash');
+const _ = require('lodash');
 
 // need to describe our object types, as well as relationships between types.
 
-const {GraphQLObjectType, GraphQLString, GraphQLSchema} = graphql;
+const {
+    GraphQLObjectType,
+    GraphQLString,
+    GraphQLSchema,
+    GraphQLID
+} = graphql;
 
 // dummy data
 
@@ -16,7 +21,7 @@ let books = [
 const BookType = new GraphQLObjectType({
     name: 'Book',
     fields: () => ({
-        id: {type: GraphQLString},
+        id: {type: GraphQLID},
         name: {type: GraphQLString},
         genre: {type: GraphQLString}
     })
@@ -27,8 +32,8 @@ const RouteQuery = new GraphQLObjectType({
     fields: {
         book: {
             type: BookType,
-            args: {id: {type: GraphQLString}},
-            resolve(parent, args){
+            args: {id: {type: GraphQLID}},
+            resolve(parent, args) {
                 // how we get data from db / other source
                 return _.find(books, {id: args.id});
             }
