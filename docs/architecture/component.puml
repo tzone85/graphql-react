@@ -1,0 +1,53 @@
+@startuml component
+title graphql-react — Component Architecture
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor Client
+
+package "src/" {
+  [server.js\n(entrypoint)] as server
+  [createApp\n(composition root)] as app
+  [/graphql handler\n(GET + POST)] as handler
+  [/explorer\n(Ruru HTML)] as explorer
+  package "schema" {
+    [buildSchema\n(query + mutation)] as schemaBuilder
+    [BookType] as bookT
+    [AuthorType] as authorT
+  }
+  package "models" {
+    [Book (Mongoose)] as bookM
+    [Author (Mongoose)] as authorM
+  }
+  [loadConfig\n(zod env)] as cfg
+  [connect.js\n(retry)] as connect
+  [seed.js\n(idempotent)] as seed
+}
+
+database "MongoDB" as mongo
+cloud "Apollo / curl /\nhttpie" as clients
+
+clients --> handler : POST /graphql
+clients --> explorer : GET /explorer (browser)
+handler --> schemaBuilder
+schemaBuilder --> bookT
+schemaBuilder --> authorT
+bookT --> bookM : Book.find* / create
+authorT --> authorM : Author.find* / create
+bookT --> authorT : nested resolve
+authorT --> bookT : nested resolve
+bookM --> mongo
+authorM --> mongo
+server --> cfg
+server --> connect
+server --> app
+seed --> mongo : insertIfEmpty
+
+note bottom of handler
+  Uses graphql() core directly,
+  skips graphql-http/express-graphql
+  (ESM/CJS dual-package instanceof
+  hazard with bundled graphql).
+end note
+@enduml

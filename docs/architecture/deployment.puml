@@ -1,0 +1,19 @@
+@startuml deployment
+title Deployment — api + mongo via compose
+
+skinparam shadowing false
+
+cloud Clients
+node "Docker host" {
+  node "api :4000" as api {
+    [node 20 + Express + graphql + mongoose]
+  }
+  database "mongo :27017" as mongo {
+    [MongoDB 7]
+    folder "mongodata\n(volume)"
+  }
+}
+
+Clients --> api : POST /graphql
+api --> mongo : mongodb://mongo:27017/library
+@enduml
