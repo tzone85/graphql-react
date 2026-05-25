@@ -1,0 +1,26 @@
+@startuml sequence_query
+title Sequence — query { book(id) { name author { name } } }
+
+skinparam shadowing false
+
+actor Client
+participant "Express /graphql" as Router
+participant "graphql() core" as Gql
+participant "Book.findById" as BookFind
+participant "Author.findById" as AuthorFind
+database "MongoDB" as Mongo
+
+Client -> Router : POST { query, variables }
+Router -> Router : parse + validate
+Router -> Gql : graphql({schema, source, variableValues})
+Gql -> BookFind : resolve book(id)
+BookFind -> Mongo : findOne by _id
+Mongo --> BookFind : doc
+BookFind --> Gql : {id, name, authorId}
+Gql -> AuthorFind : resolve book.author
+AuthorFind -> Mongo : findOne by authorId
+Mongo --> AuthorFind : doc
+AuthorFind --> Gql : {name, age}
+Gql --> Router : {data: {book: {...}}}
+Router --> Client : 200 JSON
+@enduml
